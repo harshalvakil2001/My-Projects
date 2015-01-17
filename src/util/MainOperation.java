@@ -48,10 +48,8 @@ public class MainOperation {
 						null);
 				tableList = new ArrayList<TableBean>();
 				while (null != rsTableList && rsTableList.next()) {
-					String tableName = rsTableList
-							.getString(Constants.ColumnName.TABLE_NAME);
-					String tableType = rsTableList
-							.getString(Constants.ColumnName.TABLE_TYPE);
+					String tableName = rsTableList.getString("TABLE_NAME");
+					String tableType = rsTableList.getString("TABLE_TYPE");
 
 					TableBean table = new TableBean(tableName, tableType);
 					if (!table.getTableType().equalsIgnoreCase("SYSTEM TABLE")) {
