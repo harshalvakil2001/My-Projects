@@ -1,5 +1,7 @@
 package util;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -27,8 +29,38 @@ public class JsonUtil {
 	}
 
 	public static void main(String[] args) {
-		String db = "database.mdb";
-		JsonUtil.getInstance().getJson(db);
+		try {
+			String strJson = "Please place a valid Access Database in the folder";
+
+			File dir = new File("json.js");
+			System.out.println("Current Path = " + dir);
+			dir = new File(dir.getAbsolutePath());
+			System.out.println("Current Path = " + dir);
+			dir = dir.getParentFile();
+			System.out.println("Current Path = " + dir);
+
+			for (File file : dir.listFiles()) {
+				System.out.println(file.getName());
+				if (file.getName().contains(".mdb")) {
+					System.out.println("Database Found");
+					strJson = JsonUtil.getInstance().getJson(file.getName());
+					System.out.println(strJson);
+					break;
+				}
+			}
+
+			// strJson = JsonUtil.getInstance().getJson("database.mdb");
+			File jsonFile = new File("json.js");
+			FileWriter jsonWriter = new FileWriter(jsonFile);
+
+			strJson = strJson.replaceAll("\"", "'");
+			jsonWriter.write("var json = \"" + strJson + "\"");
+			// jsonWriter.write(strJson);
+			jsonWriter.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public String getJson(String db) {

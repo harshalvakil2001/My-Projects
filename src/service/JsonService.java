@@ -29,7 +29,8 @@ public class JsonService extends HttpServlet {
 			PrintWriter out = response.getWriter();
 			response.setHeader("content-type", "text/html");
 			String db = "database.mdb";
-			out.print(util.getJson(db));
+			String str = util.getJson(db);
+			out.print(str);
 			out.close();
 		} catch (Exception e) {
 			e.printStackTrace();
