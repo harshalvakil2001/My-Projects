@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import bean.Relationship;
 import bean.TableBean;
 
-public class MainOperation {
+public class JsonUtil {
 
 	public static Connection conn = null;
 
@@ -26,6 +26,10 @@ public class MainOperation {
 	}
 
 	public static void main(String[] args) {
+
+	}
+
+	public static String getJson() {
 		initializeConnection();
 		ArrayList<TableBean> tableList = getDBTables();
 		String json = "{\"tables\":[";
@@ -36,6 +40,7 @@ public class MainOperation {
 		json = json.replaceAll(",]", "]");
 		json = json.replaceAll(",}", "}");
 		System.out.println(json);
+		return json;
 	}
 
 	public static ArrayList<TableBean> getDBTables() {
