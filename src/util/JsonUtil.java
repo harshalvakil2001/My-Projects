@@ -14,24 +14,25 @@ import bean.TableBean;
 
 public class JsonUtil {
 
+	public static JsonUtil INSTANCE = null;
 	public static Connection conn = null;
 
-	public static void initializeConnection() {
-		try {
-			String db = "database.mdb";
-			conn = DriverManager.getConnection("jdbc:ucanaccess://" + db);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	private JsonUtil() {
+	}
+
+	public static JsonUtil getInstance() {
+		if (null == INSTANCE)
+			INSTANCE = new JsonUtil();
+		return INSTANCE;
 	}
 
 	public static void main(String[] args) {
-
+		String db = "database.mdb";
+		JsonUtil.getInstance().getJson(db);
 	}
 
-	public static String getJson() {
-		initializeConnection();
-		ArrayList<TableBean> tableList = getDBTables();
+	public String getJson(String db) {
+		ArrayList<TableBean> tableList = getDBTables(db);
 		String json = "{\"tables\":[";
 		for (TableBean table : tableList) {
 			json = json + table + ",";
@@ -43,40 +44,39 @@ public class JsonUtil {
 		return json;
 	}
 
-	public static ArrayList<TableBean> getDBTables() {
+	private ArrayList<TableBean> getDBTables(String db) {
 		ArrayList<TableBean> tableList = null;
 		try {
 
-			if (null != conn) {
-				DatabaseMetaData dbMetaData = conn.getMetaData();
-				ResultSet rsTableList = dbMetaData.getTables(null, null, null,
-						null);
-				tableList = new ArrayList<TableBean>();
-				while (null != rsTableList && rsTableList.next()) {
-					String tableName = rsTableList.getString("TABLE_NAME");
-					String tableType = rsTableList.getString("TABLE_TYPE");
+			if (null == conn) {
+				JsonUtil.getInstance().initializeConnection(db);
+			}
+			DatabaseMetaData dbMetaData = conn.getMetaData();
+			ResultSet rsTableList = dbMetaData
+					.getTables(null, null, null, null);
+			tableList = new ArrayList<TableBean>();
+			while (null != rsTableList && rsTableList.next()) {
+				String tableName = rsTableList.getString("TABLE_NAME");
+				String tableType = rsTableList.getString("TABLE_TYPE");
 
-					TableBean table = new TableBean(tableName, tableType);
-					if (!table.getTableType().equalsIgnoreCase("SYSTEM TABLE")) {
-						String query = "SELECT * FROM " + tableName
-								+ " WHERE 1=2";
-						PreparedStatement ps = conn.prepareStatement(query);
-						ResultSet rsTable = ps.executeQuery();
-						ResultSetMetaData rsmdTable = rsTable.getMetaData();
-						for (int i = 1; i <= rsmdTable.getColumnCount(); i++) {
-							String columnName = rsmdTable.getColumnName(i);
-							String columnType = rsmdTable.getColumnTypeName(i);
-							table.getColumns().put(columnName, columnType);
-						}
-
-						ArrayList<Relationship> rList = printForeignKeys(conn,
-								tableName);
-						table.setForeignKeys(rList);
-						tableList.add(table);
-
+				TableBean table = new TableBean(tableName, tableType);
+				if (!table.getTableType().equalsIgnoreCase("SYSTEM TABLE")) {
+					String query = "SELECT * FROM " + tableName + " WHERE 1=2";
+					PreparedStatement ps = conn.prepareStatement(query);
+					ResultSet rsTable = ps.executeQuery();
+					ResultSetMetaData rsmdTable = rsTable.getMetaData();
+					for (int i = 1; i <= rsmdTable.getColumnCount(); i++) {
+						String columnName = rsmdTable.getColumnName(i);
+						String columnType = rsmdTable.getColumnTypeName(i);
+						table.getColumns().put(columnName, columnType);
 					}
-				}
 
+					ArrayList<Relationship> rList = printForeignKeys(conn,
+							tableName);
+					table.setForeignKeys(rList);
+					tableList.add(table);
+
+				}
 			}
 
 		} catch (Exception e) {
@@ -85,8 +85,8 @@ public class JsonUtil {
 		return tableList;
 	}
 
-	private static ArrayList<Relationship> printForeignKeys(
-			Connection connection, String tableName) throws SQLException {
+	private ArrayList<Relationship> printForeignKeys(Connection connection,
+			String tableName) throws SQLException {
 		DatabaseMetaData metaData = connection.getMetaData();
 		ResultSet foreignKeys = metaData.getImportedKeys(
 				connection.getCatalog(), null, tableName);
@@ -102,6 +102,14 @@ public class JsonUtil {
 			rList.add(r);
 		}
 		return rList;
+	}
+
+	private void initializeConnection(String db) {
+		try {
+			conn = DriverManager.getConnection("jdbc:ucanaccess://" + db);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

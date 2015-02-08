@@ -5,7 +5,6 @@
 	id="WebApp_ID" version="3.0">
 	<display-name>DatabaseOperations</display-name>
 	<welcome-file-list>
-		<welcome-file>login.js
-		p</welcome-file>
+		<welcome-file>login.jsp</welcome-file>
 	</welcome-file-list>
 </web-app>
