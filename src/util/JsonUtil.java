@@ -1,5 +1,6 @@
 package util;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileWriter;
 import java.sql.Connection;
@@ -32,11 +33,11 @@ public class JsonUtil {
 		try {
 			String strJson = "Please place a valid Access Database in the folder";
 
-			File dir = new File("json.js");
+			File dir = new File("WebApp\\js\\json.js");
 			System.out.println("Current Path = " + dir);
 			dir = new File(dir.getAbsolutePath());
 			System.out.println("Current Path = " + dir);
-			dir = dir.getParentFile();
+			dir = dir.getParentFile().getParentFile().getParentFile();
 			System.out.println("Current Path = " + dir);
 
 			for (File file : dir.listFiles()) {
@@ -50,12 +51,10 @@ public class JsonUtil {
 			}
 
 			// strJson = JsonUtil.getInstance().getJson("database.mdb");
-			File jsonFile = new File("json.js");
+			File jsonFile = new File("WebApp\\js\\json.js");
 			FileWriter jsonWriter = new FileWriter(jsonFile);
-
-			strJson = strJson.replaceAll("\"", "'");
-			jsonWriter.write("var json = \"" + strJson + "\"");
-			// jsonWriter.write(strJson);
+			jsonWriter.write("var json = " + strJson + ";");
+			Desktop.getDesktop().open(new File("WebApp\\db2Diag.html"));
 			jsonWriter.close();
 		} catch (Exception e) {
 			e.printStackTrace();
