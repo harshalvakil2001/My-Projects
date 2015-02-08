@@ -24,38 +24,6 @@ function addToPoints(tableName, col, x, y) {
 	});
 }
 
-function cropImageFromCanvas(ctx, canvas) {
-	var w = canvas.width, h = canvas.height, pix = {
-		x : [],
-		y : []
-	}, imageData = ctx.getImageData(0, 0, canvas.width, canvas.height), x, y, index;
-
-	for (y = 0; y < h; y++) {
-		for (x = 0; x < w; x++) {
-			index = (y * w + x) * 4;
-			if (imageData.data[index + 3] > 0) {
-				pix.x.push(x);
-				pix.y.push(y);
-			}
-		}
-	}
-	pix.x.sort(function(a, b) {
-		return a - b
-	});
-	pix.y.sort(function(a, b) {
-		return a - b
-	});
-	var n = pix.x.length - 1;
-
-	w = pix.x[n] - pix.x[0];
-	h = pix.y[n] - pix.y[0];
-	var cut = ctx.getImageData(pix.x[0], pix.y[0], w, h);
-
-	canvas.width = w + 20;
-	canvas.height = h + 20;
-	ctx.putImageData(cut, 10, 10);
-}
-
 $(document).ready(
 		function() {
 
@@ -121,33 +89,29 @@ $(document).ready(
 					table1 = keys[i].substr(0, keys[i].indexOf("-"));
 					table2 = keys[i + 1].substr(0, keys[i + 1].indexOf("-"));
 
-					
-
-					if (pt1.x == tables[table1].x1) 
+					if (pt1.x == tables[table1].x1)
 						if (pt1.x < tables[table1].x2)
 							txt1.x = pt1.x - 15;
 						else
 							txt1.x = pt1.x + 10;
+					else if (pt1.x < tables[table1].x1)
+						txt1.x = pt1.x - 15;
 					else
-						if (pt1.x < tables[table1].x1)
-							txt1.x = pt1.x - 15;
-						else
-							txt1.x = pt1.x +10;
-					
+						txt1.x = pt1.x + 10;
+
 					console.log("pt2.x = " + pt2.x);
 					console.log("tables[table2].x1 = " + tables[table2].x1);
 					console.log("tables[table2].x2 = " + tables[table2].x2);
 
-					if (pt2.x == tables[table2].x1) 
+					if (pt2.x == tables[table2].x1)
 						if (pt2.x < tables[table2].x2)
 							txt2.x = pt2.x - 15;
 						else
 							txt2.x = pt2.x + 10;
+					else if (pt2.x < tables[table2].x1)
+						txt2.x = pt2.x - 15;
 					else
-						if (pt2.x < tables[table2].x1)
-							txt2.x = pt2.x - 15;
-						else
-							txt2.x = pt2.x +10;
+						txt2.x = pt2.x + 10;
 
 					drawArrow(ctx, pt1.x, pt1.y, pt2.x, pt2.y - 5, 4, 2);
 					ctx.fillStyle = "red";
@@ -158,6 +122,7 @@ $(document).ready(
 				}
 			}
 			cropImageFromCanvas(ctx, c);
+			ctx.strokeRect(0, 0, c.width, c.height);
 			ctx.fillStyle = "#eeeeee";
 			ctx.globalCompositeOperation = "destination-over";
 			ctx.fillRect(0, 0, c.width, c.height);
@@ -221,9 +186,9 @@ function createTable(obj, tableName, cols) {
 		x1 : x,
 		x2 : x + units.tableWidth
 	}
-	ctx.font = "bold " + units.fontSize + "pt sans-serif ";
+	ctx.font = "bold 10pt sans-serif ";
 	ctx.fillText(tableName, x + units.textIndent, y + units.textHeight);
-	ctx.font = units.fontSize + "pt sans-serif ";
+	ctx.font = "9pt sans-serif ";
 	ctx.strokeRect(x, y, units.tableWidth, units.tableHeight);
 	y = y + units.tableHeight;
 
