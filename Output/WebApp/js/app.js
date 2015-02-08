@@ -1,4 +1,5 @@
 var points = {};
+var tables = {};
 var keys = [];
 var units = {
 	tableWidth : 250,
@@ -10,7 +11,7 @@ var units = {
 var ctx = null;
 function addToPoints(tableName, col, x, y) {
 	col = col.substr(0, col.indexOf(":") - 1);
-	var str = (tableName + "-" + col).toLowerCase();
+	var str = tableName + "-" + col
 	if (null == points[str])
 		points[str] = [];
 	points[str].push({
@@ -83,10 +84,10 @@ $(document).ready(
 						if (null != relation) {
 							var str = relation.pkTableName + "-"
 									+ relation.pkColumnName;
-							keys.push(str.toLowerCase());
+							keys.push(str);
 							var str = relation.fkTableName + "-"
 									+ relation.fkColumnName;
-							keys.push(str.toLowerCase());
+							keys.push(str);
 						}
 					}
 				}
@@ -98,24 +99,61 @@ $(document).ready(
 					pt1arr = points[keys[i]];
 					pt2arr = points[keys[i + 1]];
 
-					var x0x0, x0x1, x1x1, x1x0;
+					var x0x0, x0x1, x1x1, x1x0, txt1 = {}, txt2 = {};
 					x0x0 = Math.abs(pt1arr[0].x - pt2arr[0].x);
 					x0x1 = Math.abs(pt1arr[0].x - pt2arr[1].x);
 					x1x1 = Math.abs(pt1arr[1].x - pt2arr[1].x);
 					x1x0 = Math.abs(pt1arr[1].x - pt2arr[0].x);
 
 					var num = Math.min(x0x0, x0x1, x1x1, x1x0);
-					if (num == x0x0 || num == x0x1)
+					if (num == x0x0 || num == x0x1) {
 						pt1 = pt1arr[0];
-					else
+					} else {
 						pt1 = pt1arr[1];
+					}
 
-					if (num == x0x0 || num == x1x0)
+					if (num == x0x0 || num == x1x0) {
 						pt2 = pt2arr[0];
-					else
+					} else {
 						pt2 = pt2arr[1];
+					}
+
+					table1 = keys[i].substr(0, keys[i].indexOf("-"));
+					table2 = keys[i + 1].substr(0, keys[i + 1].indexOf("-"));
+
+					
+
+					if (pt1.x == tables[table1].x1) 
+						if (pt1.x < tables[table1].x2)
+							txt1.x = pt1.x - 15;
+						else
+							txt1.x = pt1.x + 10;
+					else
+						if (pt1.x < tables[table1].x1)
+							txt1.x = pt1.x - 15;
+						else
+							txt1.x = pt1.x +10;
+					
+					console.log("pt2.x = " + pt2.x);
+					console.log("tables[table2].x1 = " + tables[table2].x1);
+					console.log("tables[table2].x2 = " + tables[table2].x2);
+
+					if (pt2.x == tables[table2].x1) 
+						if (pt2.x < tables[table2].x2)
+							txt2.x = pt2.x - 15;
+						else
+							txt2.x = pt2.x + 10;
+					else
+						if (pt2.x < tables[table2].x1)
+							txt2.x = pt2.x - 15;
+						else
+							txt2.x = pt2.x +10;
 
 					drawArrow(ctx, pt1.x, pt1.y, pt2.x, pt2.y - 5, 4, 2);
+					ctx.fillStyle = "red";
+					ctx.fillText("1", txt1.x, pt1.y);
+					ctx.fillText("n", txt2.x, pt2.y);
+					ctx.fillStyle = "black";
 
 				}
 			}
@@ -131,13 +169,13 @@ function getTablePoints(tableName) {
 		x : 10,
 		y : 350
 	}, {
-		x : 400,
+		x : 300,
 		y : 10
 	}, {
 		x : 700,
 		y : 350
 	}, {
-		x : 300,
+		x : 400,
 		y : 700
 	} ];
 
@@ -179,6 +217,10 @@ function getTablePoints(tableName) {
 
 function createTable(obj, tableName, cols) {
 	x = obj.x, y = obj.y;
+	tables[tableName] = {
+		x1 : x,
+		x2 : x + units.tableWidth
+	}
 	ctx.font = "bold " + units.fontSize + "pt sans-serif ";
 	ctx.fillText(tableName, x + units.textIndent, y + units.textHeight);
 	ctx.font = units.fontSize + "pt sans-serif ";
